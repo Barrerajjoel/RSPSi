@@ -485,12 +485,15 @@ public final class Buffer {
 		}
 	}
 
+	// Must be the exact mirror of readUSmartInt above. The reader keeps reading
+	// smarts while each one equals 32767 and adds them all up, so 32767 means
+	// "more is coming" and can never be the last chunk written.
 	public void writeUSmartInt(int value) {
-		if (value > Short.MAX_VALUE) {
-			writeIntSmart(value);
-		} else {
-			writeUSmart(value);
+		while (value >= 32767) {
+			writeUSmart(32767);
+			value -= 32767;
 		}
+		writeUSmart(value);
 	}
 
 	public void writeIntSmart(int value) {
